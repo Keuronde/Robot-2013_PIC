@@ -1,7 +1,8 @@
 BIN	:=	TestCodeur
 
 SRCS	:=	src/Poivron2010.c  \
-            src/serie.c
+            src/serie.c        \
+            src/Odometrie.c
 
 
 ## Information concernant le compilateur

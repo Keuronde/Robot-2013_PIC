@@ -23,15 +23,11 @@
 #include <stdio.h>
 #include "include/Poivron2010.h"
 #include "include/serie.h"
+#include "include/odometrie.h"
 
 
 
 /** V A R I A B L E S ********************************************************/
-#pragma idata
-volatile unsigned long impulsions = 0;
-unsigned int compteurAncien = 0;
-#pragma udata
-volatile unsigned char vitesse;
 
 
 
@@ -76,28 +72,7 @@ void MyInterrupt_H(void){
 	
 	SerieGestion();
 	// Gestion Odo
-	if (INTCONbits.TMR0IF){
-		unsigned int compteurActuel;
-		
-		INTCONbits.TMR0IF =0;
-
-		TMR0H = 0xFE;
-		TMR0L = 0x88;
-		compteurActuel = TMR1L;
-		compteurActuel = compteurActuel | ((unsigned int) TMR1H)<< 8;
-		
-		// Gestion du rebouclage du compteur
-		if (compteurActuel > compteurAncien){
-			vitesse = compteurActuel - compteurAncien;
-		}else{
-			vitesse = ((unsigned int)0xFFFF - compteurAncien) + compteurActuel + 1;
-		}
-		compteurAncien = compteurActuel;
-		
-		// Gestion du sens à implémenter
-		impulsions = impulsions + vitesse;
-		
-	}
+	OdometrieGestion();
 	
 
 
@@ -142,6 +117,8 @@ void main(void)
 {
 // Déclaration des variables
 	unsigned char donnesSerie[12];
+	int vitesse;
+	long impulsions;
 	donnesSerie[0] = 'B';
 	donnesSerie[1] = 'O';
 	donnesSerie[2] = 'U';
@@ -154,6 +131,7 @@ void main(void)
 // Initialisation du robot
 	Poivron_Init();
 	SerieInit();
+	OdometrieInit();
 	
 // Initialisation du timer Odo
 	// Timer actif
@@ -172,7 +150,8 @@ void main(void)
 	while(1){
 		Delay100TCYx(120); // Pause 1 ms
 		
-		
+		vitesse = OdometrieGetVitesse();
+		impulsions = OdometrieGetDeplacement();
 		//impulsions_tmp = impulsions_tmp + vitesse;
 		sprintf((char*)donnesSerie,"%3d %6lu\r\n",vitesse,impulsions);
 		SerieEnvoieDonnee(donnesSerie, 12);

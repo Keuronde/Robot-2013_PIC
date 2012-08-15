@@ -27,7 +27,12 @@
 
 
 /** V A R I A B L E S ********************************************************/
+#pragma idata
+volatile unsigned long impulsions = 0;
+unsigned int compteurAncien = 0;
 #pragma udata
+volatile unsigned char vitesse;
+
 
 
 
@@ -70,7 +75,30 @@ void MyInterrupt_H(void){
 	sauv2 = PRODH;
 	
 	SerieGestion();
+	// Gestion Odo
+	if (INTCONbits.TMR0IF){
+		unsigned int compteurActuel;
+		
+		INTCONbits.TMR0IF =0;
 
+		TMR0H = 0xFE;
+		TMR0L = 0x88;
+		compteurActuel = TMR1L;
+		compteurActuel = compteurActuel | ((unsigned int) TMR1H)<< 8;
+		
+		// Gestion du rebouclage du compteur
+		if (compteurActuel > compteurAncien){
+			vitesse = compteurActuel - compteurAncien;
+		}else{
+			vitesse = ((unsigned int)0xFFFF - compteurAncien) + compteurActuel + 1;
+		}
+		compteurAncien = compteurActuel;
+		
+		// Gestion du sens à implémenter
+		impulsions = impulsions + vitesse;
+		
+	}
+	
 
 
 	PRODL = sauv1;
@@ -84,6 +112,7 @@ void MyInterrupt_L(void){
 
 	sauv1 = PRODL;
 	sauv2 = PRODH;
+
 
 
 	PRODL = sauv1;
@@ -107,17 +136,11 @@ void MyInterrupt_L(void){
  *
  * Note:            None
  *****************************************************************************/
-/** L E D ***********************************************************/
 
-/** S W I T C H *****************************************************/
 
 void main(void)
 {
 // Déclaration des variables
-	char estJaune,etat,ok;
-	unsigned int vitesse,i;
-	unsigned long impulsions, impulsions_tmp; 
-	unsigned int compteurAncien, compteurActuel;
 	unsigned char donnesSerie[12];
 	donnesSerie[0] = 'B';
 	donnesSerie[1] = 'O';
@@ -125,8 +148,6 @@ void main(void)
 	donnesSerie[3] = '\r';
 	donnesSerie[4] = '\n';
 
-
-	impulsions =0;
 // Pas de patte en analogique
     
 
@@ -139,40 +160,27 @@ void main(void)
 	// Timer sur 16 bits
 	// Source interne (Fosc/4 : 12 MHz)
 	// Prescaler 1/32 
-	T0CON = 0x88;
+	T0CON = 0x84;
 	
 	// overflow - 375 
 	TMR0H = 0xFE;
 	TMR0L = 0x88;
 	// Interruptions actives
 	INTCONbits.TMR0IE = 1;
+	
 
-
-  // 
-	i=0;
-	compteurAncien = 0;
 	while(1){
-		Delay100TCYx(120); // Pause 10 ms
-		compteurActuel = TMR1L;
-		compteurActuel = compteurActuel | ((unsigned int) TMR1H)<< 8;
+		Delay100TCYx(120); // Pause 1 ms
 		
-		// Gestion du rebouclage du compteur
-		if (compteurActuel > compteurAncien){
-			vitesse = compteurActuel - compteurAncien;
-		}else{
-			vitesse = ((unsigned int)0xFFFF - compteurAncien) + compteurActuel + 1;
-		}
-		compteurAncien = compteurActuel;
 		
-		impulsions = impulsions + vitesse;
-		impulsions_tmp = impulsions_tmp + vitesse;
+		//impulsions_tmp = impulsions_tmp + vitesse;
 		sprintf((char*)donnesSerie,"%3d %6lu\r\n",vitesse,impulsions);
 		SerieEnvoieDonnee(donnesSerie, 12);
 		
-		if (impulsions_tmp > 200){
+		/*if (impulsions_tmp > 200){
 			impulsions_tmp = 0;
 			CT_AR = !CT_AR;
-		}
+		}*/
 
 	}
 

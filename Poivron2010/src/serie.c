@@ -2,17 +2,18 @@
 #include "include/serie.h"
 
 
-struct {
+struct envoieSerie{
 	unsigned char * donnee;
 	unsigned char nbDonnee;
-} variableSerie;
+};
+volatile struct envoieSerie variableSerie;
 
 /** P R I V A T E   P R O T O T Y P E S *******************************/
 void envoieOctet(void);
 
 void SerieGestion(void){
 	// Envoi des données
-	if (PIR1bits.TXIF == 1){
+	if (PIR1bits.TXIF == 1 && PIE1bits.TXIE == 1){
 		envoieOctet();
 		// Si on a tout chargé dans le tampon d'envoi
 		// On coupe les interruption
@@ -62,7 +63,6 @@ char SerieEnvoieDonnee(unsigned char * _donnee, char _nbDonnee){
 	if (variableSerie.nbDonnee == 0){
 		variableSerie.donnee = _donnee;
 		variableSerie.nbDonnee = _nbDonnee;
-		
 		// Activation des interrutpions pour les envois
 		PIE1bits.TXIE =1;
 		

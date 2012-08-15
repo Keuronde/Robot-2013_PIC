@@ -72,6 +72,7 @@ void MyInterrupt_H(void){
 	SerieGestion();
 
 
+
 	PRODL = sauv1;
 	PRODH = sauv2;		
 
@@ -114,7 +115,9 @@ void main(void)
 {
 // Déclaration des variables
 	char estJaune,etat,ok;
-	unsigned int impulsions, impulsions_tmp,vitesse,i;
+	unsigned int vitesse,i;
+	unsigned long impulsions, impulsions_tmp; 
+	unsigned int compteurAncien, compteurActuel;
 	unsigned char donnesSerie[12];
 	donnesSerie[0] = 'B';
 	donnesSerie[1] = 'O';
@@ -130,23 +133,40 @@ void main(void)
 // Initialisation du robot
 	Poivron_Init();
 	SerieInit();
-
+	
+// Initialisation du timer Odo
+	// Timer actif
+	// Timer sur 16 bits
+	// Source interne (Fosc/4 : 12 MHz)
+	// Prescaler 1/32 
+	T0CON = 0x88;
+	
+	// overflow - 375 
+	TMR0H = 0xFE;
+	TMR0L = 0x88;
+	// Interruptions actives
+	INTCONbits.TMR0IE = 1;
 
 
   // 
 	i=0;
+	compteurAncien = 0;
 	while(1){
 		Delay100TCYx(120); // Pause 10 ms
-		vitesse = TMR1L;
-		vitesse = vitesse | ((unsigned int) TMR1H)<< 8;
-		if (vitesse > 0){ // contournement bug silicon ?
-			TMR1H = 0;
-			TMR1L = 0;
+		compteurActuel = TMR1L;
+		compteurActuel = compteurActuel | ((unsigned int) TMR1H)<< 8;
+		
+		// Gestion du rebouclage du compteur
+		if (compteurActuel > compteurAncien){
+			vitesse = compteurActuel - compteurAncien;
+		}else{
+			vitesse = ((unsigned int)0xFFFF - compteurAncien) + compteurActuel + 1;
 		}
+		compteurAncien = compteurActuel;
 		
 		impulsions = impulsions + vitesse;
 		impulsions_tmp = impulsions_tmp + vitesse;
-		sprintf((char*)donnesSerie,"%3d %6d\r\n",vitesse,impulsions);
+		sprintf((char*)donnesSerie,"%3d %6lu\r\n",vitesse,impulsions);
 		SerieEnvoieDonnee(donnesSerie, 12);
 		
 		if (impulsions_tmp > 200){
@@ -182,13 +202,15 @@ void main(void)
  *****************************************************************************/
 
 void Poivron_Init(){
-  ADCON1 |= 0x0F; // Default all pins to digital
+	ADCON1 |= 0x0F; // Default all pins to digital
 
 	TRIS_CT_AR = 0; // LED en sorite
 	
-  // Initialisation du Timer1
+	// Initialisation du Timer1
 	T1CON = 0x87; // Lecture 16 bits, pas d'oscillateur,
 	              // Synchro, external signal, timer actif
+	TMR1H = 0;
+	TMR1L = 0;
 
 }
 

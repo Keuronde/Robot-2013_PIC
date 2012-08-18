@@ -26,7 +26,13 @@ void OdometrieInit(void){
 }
 
 int OdometrieGetVitesse(void){
-	return VarOdometrie.vitesseCycle;
+	//return VarOdometrie.vitesseCycle;
+	char i;
+	int mVitesse=0;
+	for(i=0;i<NB_CYLCLE_CALCUL;i++){
+		mVitesse += VarOdometrie.vitesseTab[i];
+	}
+	return mVitesse;
 }
 
 long OdometrieGetDeplacement(void){
@@ -53,9 +59,13 @@ void OdometrieGestion(void){
 		VarOdometrie.compteurCyclePrec = compteurActuel;
 		
 		// Gestion du sens à implémenter
+		// Deplacement
 		OdometrieCinematique.distance = OdometrieCinematique.distance + VarOdometrie.vitesseCycle;
-		
-		
-		
+		// Vitesse
+		VarOdometrie.vitesseTab[VarOdometrie.indexVitesse] = VarOdometrie.vitesseCycle;
+		VarOdometrie.indexVitesse++;
+		if (VarOdometrie.indexVitesse == NB_CYLCLE_CALCUL){
+			VarOdometrie.indexVitesse = 0;
+		}
 	}
 }

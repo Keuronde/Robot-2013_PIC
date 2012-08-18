@@ -149,7 +149,7 @@ void main(void)
 
 	while(1){
 		Delay100TCYx(120); // Pause 1 ms
-		
+		//Delay10KTCYx(120); // Pause 100 ms
 		vitesse = OdometrieGetVitesse();
 		impulsions = OdometrieGetDeplacement();
 		//impulsions_tmp = impulsions_tmp + vitesse;

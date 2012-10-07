@@ -10,7 +10,6 @@ struct {
   int vitesseCycle;
   int  vitesseTab[NB_CYLCLE_CALCUL];
   unsigned char indexVitesse;
-  char sens;
 } VarOdometrie;
 
 
@@ -55,8 +54,6 @@ void OdometrieInit(void){
 	INTCON3bits.INT2IP = 1; // Priorité élevée
 	INTCON3bits.INT2IE = 1; // Interruption activée
 	
-	VarOdometrie.sens = LECTURE_SENS;
-	
 	
 	VarOdometrie.compteurCyclePrec = 0;
 	VarOdometrie.compteurCycleOppose = 0;
@@ -91,13 +88,11 @@ void OdometrieGestion(void){
 		if (LECTURE_SENS){
 			// sens positif
 			INTCON2bits.INTEDG2 = 0; // interruption sur front descendant
-			VarOdometrie.sens = 1;
 			LED_1_OFF();
 			LED_2_ON();
 		}else{
 			// Sens négatif
 			INTCON2bits.INTEDG2 = 1; // interruption sur front montant
-			VarOdometrie.sens = 0;
 			LED_1_ON();
 			LED_2_OFF();
 		}
@@ -109,11 +104,8 @@ void OdometrieGestion(void){
 		TMR0L = 0;
 		
 		// Gestion du rebouclage du compteur
-		if (compteurActuel > VarOdometrie.compteurCyclePrec){
-			VarOdometrie.compteurCycleOppose = compteurActuel - VarOdometrie.compteurCyclePrec - VarOdometrie.compteurCycleOppose;
-		}else{
-			VarOdometrie.compteurCycleOppose = ((unsigned int)0xFFFF - VarOdometrie.compteurCyclePrec) + compteurActuel + (unsigned int)1 - VarOdometrie.compteurCycleOppose;
-		}
+		VarOdometrie.compteurCycleOppose = compteurActuel - VarOdometrie.compteurCyclePrec - VarOdometrie.compteurCycleOppose;
+		
 		
 		// compteur à 0
 		VarOdometrie.compteurCyclePrec = 0;
@@ -133,11 +125,10 @@ void OdometrieGestion(void){
 		
 		
 		// Gestion du rebouclage du compteur
-		if (compteurActuel > VarOdometrie.compteurCyclePrec){
-			VarOdometrie.vitesseCycle = compteurActuel - VarOdometrie.compteurCyclePrec - VarOdometrie.compteurCycleOppose;
-		}else{
-			VarOdometrie.vitesseCycle = ((unsigned int)0xFFFF - VarOdometrie.compteurCyclePrec) + compteurActuel + (unsigned int)1 - VarOdometrie.compteurCycleOppose;
-		}
+		// Inutile de s'en préoccuper, ça marche tout seul ! (avec des unsigned int)
+		
+		VarOdometrie.vitesseCycle = compteurActuel - VarOdometrie.compteurCyclePrec - VarOdometrie.compteurCycleOppose;
+		
 		VarOdometrie.compteurCycleOppose = 0;
 		VarOdometrie.compteurCyclePrec = compteurActuel;
 		
@@ -147,7 +138,7 @@ void OdometrieGestion(void){
 		if (VarOdometrie.indexVitesse == NB_CYLCLE_CALCUL){
 			VarOdometrie.indexVitesse = 0;
 		}
-		if (VarOdometrie.sens){
+		if (LECTURE_SENS){
 			VarOdometrie.vitesseTab[VarOdometrie.indexVitesse] = VarOdometrie.vitesseCycle;
 		}else{
 			VarOdometrie.vitesseTab[VarOdometrie.indexVitesse] = -VarOdometrie.vitesseCycle;

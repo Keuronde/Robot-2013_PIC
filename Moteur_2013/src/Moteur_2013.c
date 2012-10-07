@@ -135,8 +135,9 @@ void MyInterrupt_L(void){
 void main(void)
 {
 // Déclaration des variables
-	unsigned char donnesSerie[12];
-	int vitesse,cmp=0;
+	unsigned char donnesSerie[15];
+	int vitesse,cmp=0,consigne_vitesse;
+	int asser_p, asser_i;
 	unsigned int tension;
 	long impulsions,consigne;
 	donnesSerie[0] = 'B';
@@ -166,7 +167,8 @@ void main(void)
 	
 	
 	consigne = -500;
-	
+	consigne_vitesse = 0;
+	asser_i =0;
 	// Faire tourner le moteur
 	//Avance();
 	//V_rapide();
@@ -183,18 +185,31 @@ void main(void)
 			while(ADCON0bits.GO_DONE);
 			tension = ((unsigned int)ADRESH<<8) | (unsigned int)ADRESL;
 			
-			// Envoie des données au PC
-			sprintf((char*)donnesSerie,"%6ld %3d\r\n",impulsions,vitesse);
-			SerieEnvoieDonnee(donnesSerie, 11);
+			
 			
 			// Asservissement
-			V_fine((int)(consigne - impulsions));
+			//consigne_vitesse = (int)(consigne - impulsions);
 			
-			cmp++;
-			if (cmp > 2000){
-				cmp=0;
-				consigne = -consigne;
+
+      if(consigne_vitesse < 1024){
+			  cmp++;
+			  if (cmp > 2000){
+				  cmp=0;
+				  consigne_vitesse += 1;
+			  }
 			}
+			
+			// Asservissement
+			asser_p = (int)(consigne_vitesse - vitesse)*100;
+			asser_i = asser_i + (int)(consigne_vitesse - vitesse)*5;
+			
+			V_fine(asser_p + asser_i);
+			
+			// Envoie des données au PC
+			// sprintf((char*)donnesSerie,"%6ld %4d\r\n",impulsions,consigne_vitesse);
+			sprintf((char*)donnesSerie,"%3u %4d %4d\r\n",tension,vitesse,consigne_vitesse);
+			
+			SerieEnvoieDonnee(donnesSerie, 15);
 			
 		}
 		

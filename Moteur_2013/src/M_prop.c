@@ -19,9 +19,11 @@ void M_prop_init(void){
     TRIS_M_ENABLE = 0; // Sortie
     // Ouverture du PWM
    	OpenPWM1(255);
-	SetDCPWM1(0);
-	// Stop 
-	Stop();
+  	SetDCPWM1(0);
+  	// PWM à 11kHz
+  	T2CONbits.T2CKPS0 = 1;
+	  // Stop 
+  	Stop();
 }
 
 void V_fine(int _vitesse){

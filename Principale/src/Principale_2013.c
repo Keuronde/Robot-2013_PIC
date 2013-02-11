@@ -23,13 +23,16 @@
 #include <stdio.h>
 #include "include/moteur_2013.h"
 #include "include/Prop2Moteurs.h"
-#include "include/serie.h"
-#include "include/odometrie.h"
+#include "include/i2c_m.h"
+#include "include/WMP.h"
 
 
 
 /** V A R I A B L E S ********************************************************/
-
+#pragma udata
+volatile unsigned char timer; 
+volatile int nb3ms;
+unsigned char mTimer;
 
 
 
@@ -37,6 +40,7 @@
 void Moteur_2013_Init(void);
 void MyInterrupt_H(void);
 void MyInterrupt_L(void);
+char getTimer(void);
 
 /** V E C T O R  R E M A P P I N G *******************************************/
 
@@ -71,6 +75,23 @@ void MyInterrupt_H(void){
 
 	sauv1 = PRODL;
 	sauv2 = PRODH;
+	
+	
+	// Compteur de temps : 1 incrément toutes les 3 ms
+   	if(PIR1bits.TMR1IF == 1){
+		PIR1bits.TMR1IF = 0;
+//		WriteTimer0(65535 - 36000); //pour un préscaler de 1 : 12000 = 1ms
+									//pour un préscaler de 32 : 375 = 1 ms
+		WriteTimer1(65535 - 48000); //pour un préscaler de 1 : 12000 = 1ms
+		timer++;
+		
+		if(timer == 255){
+		    nb3ms--; 
+		}
+		
+	}
+	
+	gestion_i2c();
 	
 	
 	PRODL = sauv1;
@@ -113,17 +134,9 @@ void MyInterrupt_L(void){
 void main(void)
 {
 // Déclaration des variables
-	unsigned char donnesSerie[15];
-	int vitesse,cmp=0,consigne_vitesse;
-	int asser_p, asser_i;
-	unsigned int tension;
+	long angle;
 	long impulsions,consigne;
-	donnesSerie[0] = 'B';
-	donnesSerie[1] = 'O';
-	donnesSerie[2] = 'U';
-	donnesSerie[3] = '\r';
-	donnesSerie[4] = '\n';
-
+	
 	// Initialisation du robot
 	Moteur_2013_Init();
 
@@ -131,6 +144,12 @@ void main(void)
 	Vitesse_G((int) -512);
 
 	while(1){
+		while(mTimer == getTimer());
+        // Calculer et récupérer l'angle du gyroscope
+        mTimer =getTimer();
+        
+        WMP_calcul(mTimer); // On actualise l'angle
+        angle = WMP_get_Angle(); // Récupérer l'angle du gyrosocpe
 	}	
 
 	
@@ -161,12 +180,60 @@ void Moteur_2013_Init(){
 	ADCON2 = 0x80;  // Résultats aligné à droite
 	ADCON0 = 0x01;  // Acitvation du module de conversion analogique => numérique
 	
+	// Init LEDs
+	TRIS_LED1 = 0; // sortie
+	TRIS_LED2 = 0; // sortie
+	LED1 = 1; 
+	LED2 = 0; 
+	
 	
 	// Initialisaiton du moteur
 	Prop2Moteurs_init();
 	
 	// Initialisation de l'odometrie
 	//OdometrieInit();
+	
+	// Initialisation de l'I2C
+	init_i2c();
+	
+	// Initialisation de la base de temps
+	T1CON = 0x81;
+	PIE1bits.TMR1IE = 1; // activation des interruptions
+	
+	
+	
+	// Initialisation du WMP
+	Delay10KTCYx(80); // Temps que le WMP soit prêt
+	if(WMP_init()){
+		LED2 = 1;
+		mTimer = getTimer();
+		while(WMP_calibration()){           // Tant que la calibration est en cours
+			while(mTimer == getTimer());
+			mTimer = getTimer();
+		}
+		// A décommenter pour avoir un WMP stable
+		/*
+		WMP_init_2();
+	   
+		while(WMP_calibration()){           // Tant que la calibration est en cours
+			while(mTimer == getTimer());
+			mTimer = getTimer();
+		}*/
+	}else{
+		while(1){
+			LED1 =!LED1;
+			Delay10KTCYx(80);
+		}
+	}
+	
+	
+    
+    // A faire à la fin de l'init : 
+    WMP_init_timer(getTimer());
+	mTimer = getTimer();
+	
+	LED1 = 0;
+	LED2 = 0;
 
 }
 
@@ -180,18 +247,7 @@ void Moteur_2013_Init(){
  *
  * Overview:        Allume la LED 1.
  *****************************************************************************/
-void LED_1_ON(void){
-	LED_1 = 0;
+char getTimer(void){
+    return timer;
 }
-void LED_1_OFF(void){
-	LED_1 = 1;
-}
-
-void LED_2_ON(void){
-	LED_2 = 0;
-}
-void LED_2_OFF(void){
-	LED_2 = 1;
-}
-
 /** EOF CarteTest.c *************************************************************/

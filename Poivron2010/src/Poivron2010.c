@@ -192,6 +192,7 @@ void Poivron_Init(){
 	ADCON1 |= 0x0F; // Default all pins to digital
 
 	TRIS_CT_AR = 0; // LED en sorite
+	TRISAbits.TRISA5 = 0; // debug en sortie
 	
 	// Initialisation du Timer1
 	T1CON = 0x87; // Lecture 16 bits, pas d'oscillateur,

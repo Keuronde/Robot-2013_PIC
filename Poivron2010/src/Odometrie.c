@@ -32,7 +32,8 @@ int OdometrieGetVitesse(void){
 	for(i=0;i<NB_CYLCLE_CALCUL;i++){
 		mVitesse += VarOdometrie.vitesseTab[i];
 	}
-	return mVitesse;
+//	return mVitesse;
+	return VarOdometrie.vitesseTab[VarOdometrie.indexVitesse];
 }
 
 long OdometrieGetDeplacement(void){
@@ -50,6 +51,7 @@ void OdometrieGestion(void){
 		compteurActuel = TMR1L;
 		compteurActuel = compteurActuel | ((unsigned int) TMR1H)<< 8;
 		
+		
 		// Gestion du rebouclage du compteur
 		if (compteurActuel > VarOdometrie.compteurCyclePrec){
 			VarOdometrie.vitesseCycle = compteurActuel - VarOdometrie.compteurCyclePrec;
@@ -62,10 +64,11 @@ void OdometrieGestion(void){
 		// Deplacement
 		OdometrieCinematique.distance = OdometrieCinematique.distance + VarOdometrie.vitesseCycle;
 		// Vitesse
-		VarOdometrie.vitesseTab[VarOdometrie.indexVitesse] = VarOdometrie.vitesseCycle;
 		VarOdometrie.indexVitesse++;
 		if (VarOdometrie.indexVitesse == NB_CYLCLE_CALCUL){
 			VarOdometrie.indexVitesse = 0;
 		}
+		VarOdometrie.vitesseTab[VarOdometrie.indexVitesse] = VarOdometrie.vitesseCycle;
+
 	}
 }

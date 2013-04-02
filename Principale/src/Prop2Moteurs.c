@@ -27,7 +27,7 @@ void Prop2Moteurs_init(void){
   	SetDCPWM1(0);
   	// Ouverture du PWM2
    	OpenPWM2(255);
-  	SetDCPWM1(0);
+  	SetDCPWM2(0);
   	PR2 = 255;
   	TMR2 = 0x04;
   	// PWM à 11kHz

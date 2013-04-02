@@ -98,7 +98,7 @@ Celle qui fait tout, sauf envoyer le bit de début
 void gestion_i2c(){
 
 	// Si c'est une interruption du Timer 2
-	if(PIR1bits.TMR2IF == 1){
+	/*if(PIR1bits.TMR2IF == 1){
 
 		// On réinitialise le drapeau
 		PIR1bits.TMR2IF = 0;
@@ -109,7 +109,7 @@ void gestion_i2c(){
 		
 		CloseTimer2();
 		
-	}
+	}*/
 	
     // Si c'est bien une interruption I2C
     if(PIR1bits.SSPIF == 1){

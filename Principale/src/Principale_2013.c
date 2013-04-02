@@ -140,8 +140,10 @@ void main(void)
 	// Initialisation du robot
 	Moteur_2013_Init();
 
-	Vitesse_D((int) -512);
-	Vitesse_G((int) -512);
+
+	Vitesse_D((int) 512);
+	Vitesse_G((int) 512);
+
 
 	while(1){
 		while(mTimer == getTimer());
@@ -150,6 +152,13 @@ void main(void)
         
         WMP_calcul(mTimer); // On actualise l'angle
         angle = WMP_get_Angle(); // Récupérer l'angle du gyrosocpe
+        
+        if (angle > 0){
+			LED2 =1;
+		}else{
+			LED2=0;
+		}
+        
 	}	
 
 	

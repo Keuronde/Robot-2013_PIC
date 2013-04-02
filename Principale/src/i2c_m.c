@@ -14,7 +14,7 @@
 #include <p18cxxx.h>
 #include <timers.h>
 #include <string.h>
-//#include <delays.h>
+#include <delays.h>
 
 
 #define NB_MAX 6

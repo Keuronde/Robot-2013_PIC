@@ -135,15 +135,21 @@ void main(void)
 {
 // Déclaration des variables
 	long angle;
-	long impulsions,consigne;
+	long impulsions;
+	// Asservissement en angle
+	long angle_consigne, angle_erreur;
+	int commande_angle;
 	
+	// Vitesse
+	int V_initial = (int)100;
+
 	// Initialisation du robot
 	Moteur_2013_Init();
+	
 
-
-	Vitesse_D((int) 512);
-	Vitesse_G((int) 512);
-
+	angle_consigne=0;
+	Vitesse_D(V_initial);
+	Vitesse_G(V_initial);
 
 	while(1){
 		while(mTimer == getTimer());
@@ -158,7 +164,20 @@ void main(void)
 		}else{
 			LED2=0;
 		}
+		
+		// Asservissement
+		angle_erreur = angle_consigne - angle;
+        commande_angle = (int)(angle_erreur / (int)2500);
+        if (commande_angle > (int)1023 ){
+			commande_angle= (int)1023; // Saturation positive
+		}
+		if(commande_angle < (int) -1023){
+			commande_angle = (int)-1023; // Saturation negative
+		}
         
+        // Commande
+        Vitesse_D( V_initial - commande_angle );
+        Vitesse_G( V_initial + commande_angle );
 	}	
 
 	
@@ -193,8 +212,20 @@ void Moteur_2013_Init(){
 	TRIS_LED1 = 0; // sortie
 	TRIS_LED2 = 0; // sortie
 	LED1 = 1; 
+	LED2 = 0;
+	Delay10KTCYx(0);
+	LED1 = 0; 
 	LED2 = 0; 
-	
+	Delay10KTCYx(0);
+	LED1 = 1; 
+	LED2 = 0; 
+	Delay10KTCYx(0);
+	LED1 = 0; 
+	LED2 = 0; 
+	Delay10KTCYx(0);
+	LED1 = 1; 
+	LED2 = 0; 
+	Delay10KTCYx(0);
 	
 	// Initialisaiton du moteur
 	Prop2Moteurs_init();
@@ -221,13 +252,12 @@ void Moteur_2013_Init(){
 			mTimer = getTimer();
 		}
 		// A décommenter pour avoir un WMP stable
-		/*
 		WMP_init_2();
 	   
 		while(WMP_calibration()){           // Tant que la calibration est en cours
 			while(mTimer == getTimer());
 			mTimer = getTimer();
-		}*/
+		}
 	}else{
 		while(1){
 			LED1 =!LED1;

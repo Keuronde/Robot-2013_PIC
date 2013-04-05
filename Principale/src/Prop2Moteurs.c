@@ -3,13 +3,15 @@
 #include "../include/Prop2Moteurs.h"
 
 /** D E F I N E *******************************************************/
-#define VITESSE_MIN (unsigned int) 510
+#define VITESSE_MIN (unsigned int) 600
+#define VITESSE_MAX (unsigned int) 1023
 
 
 // PWM1 => Gauche
 // PWM2 => Droite
 
 // Fonctions privées
+int adapteVitesse(int _vitesse);
 void Avance_G(void);
 void Recule_G(void);
 void Avance_D(void);
@@ -48,6 +50,7 @@ void Vitesse_G(int _vitesse){
 	if (_vitesse > (int)1023){
 		_vitesse = (int)1023;
 	}
+	_vitesse = adapteVitesse(_vitesse);
 	SetDCPWM1( ((int)_vitesse));
 }
 
@@ -62,8 +65,24 @@ void Vitesse_D(int _vitesse){
 	if (_vitesse > (int)1023){
 		_vitesse = (int)1023;
 	}
+	_vitesse = adapteVitesse(_vitesse);
 	SetDCPWM2( ((int)_vitesse));
 }
+
+// Supprime la plage pendant laquelle on allimente le moteur sans que celui-ci tourne.
+// _vitesse doit être positive
+int adapteVitesse(int _vitesse){
+	int vitesse;
+	if (_vitesse > 0){
+		long l_vitesse;
+		l_vitesse = (long) _vitesse * (long)(VITESSE_MAX - VITESSE_MIN);
+		vitesse = (int) (l_vitesse / (int) 1023) + VITESSE_MIN;
+	}else{
+		vitesse = (int)0;
+	}
+	return vitesse;
+}
+
 void Stop_G(){
     Vitesse_G((int) 0);
 }
@@ -71,20 +90,20 @@ void Stop_D(){
     Vitesse_G((int) 0);
 }
 
-void Avance_G(){
-    M_D_SENS = 1;
-}
-    
-void Recule_G(){
-    M_D_SENS = 0;
-}
-
 void Avance_D(){
-    M_G_SENS = 1;
+    M_D_SENS = 0;
 }
     
 void Recule_D(){
+    M_D_SENS = 1;
+}
+
+void Avance_G(){
     M_G_SENS = 0;
+}
+    
+void Recule_G(){
+    M_G_SENS = 1;
 }
 
 

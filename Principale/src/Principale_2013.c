@@ -21,7 +21,6 @@
 #include <timers.h>
 #include <delays.h>
 #include <stdio.h>
-#include "include/moteur_2013.h"
 #include "include/Prop2Moteurs.h"
 #include "include/i2c_m.h"
 #include "include/WMP.h"
@@ -167,7 +166,7 @@ void main(void)
 		
 		// Asservissement
 		angle_erreur = angle_consigne - angle;
-        commande_angle = (int)(angle_erreur / (int)2500);
+        commande_angle = (int)(angle_erreur / (int)250);
         if (commande_angle > (int)1023 ){
 			commande_angle= (int)1023; // Saturation positive
 		}

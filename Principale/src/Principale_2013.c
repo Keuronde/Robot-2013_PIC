@@ -138,6 +138,8 @@ void main(void)
 	// Asservissement en angle
 	long angle_consigne, angle_erreur;
 	int commande_angle;
+	int commande_angle_P, commande_angle_I=0;
+	char tempo_P=0;
 	
 	// Vitesse
 	int V_initial = (int)100;
@@ -165,16 +167,29 @@ void main(void)
 		}
 		
 		// Asservissement
+		// Gain proportionnel
 		angle_erreur = angle_consigne - angle;
-        commande_angle = (int)(angle_erreur / (int)250);
-        if (commande_angle > (int)1023 ){
-			commande_angle= (int)1023; // Saturation positive
+        commande_angle_P = (int)(angle_erreur / (int)250);
+        if (commande_angle_P > (int)1023 ){
+			commande_angle_P = (int)1023; // Saturation positive
 		}
-		if(commande_angle < (int) -1023){
-			commande_angle = (int)-1023; // Saturation negative
+		if(commande_angle_P < (int) -1023){
+			commande_angle_P = (int)-1023; // Saturation negative
 		}
+		// Gain intégral
+		if (tempo_P == 10){
+			tempo_P = 0;
+			if((commande_angle_P > (int) -1023) && (commande_angle_P < (int)1023 )){
+				commande_angle_I = commande_angle_I + (int)(commande_angle_P / 10);
+			}else{
+				commande_angle_I = (int)0;
+			}
+		}
+		tempo_P++;
+		
         
         // Commande
+        commande_angle = commande_angle_I + commande_angle_P;
         Vitesse_D( V_initial - commande_angle );
         Vitesse_G( V_initial + commande_angle );
 	}	

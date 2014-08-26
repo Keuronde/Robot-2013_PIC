@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *      Programme utilisé pour le test du robot.
+ *      Programme utilisÃ© pour le test du robot.
  *
  *********************************************************************
  * FileName:        Poivron.c
@@ -11,12 +11,12 @@
  *
  * Author               Date        Comment
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Samuel Kay         09/08/09    Original.
- * Samuel Kay         26/11/11    Add some comments.
+ * Keuronde         09/08/09    Original.
+ * Keuronde         26/11/11    Add some comments.
  ********************************************************************/
 
 /** I N C L U D E S **********************************************************/
-// Compilé avec MCC18, le compilateur C de Microchip pour PIC 18F
+// CompilÃ© avec MCC18, le compilateur C de Microchip pour PIC 18F
 #include <p18f2550.h>
 #include <timers.h>
 #include <delays.h>
@@ -63,7 +63,7 @@ void _low_ISR (void)
 #pragma interrupt MyInterrupt_H
 void MyInterrupt_H(void){
 	// code de "Rustre Corner"
-	// Adapté et modifié par S. KAY
+	// AdaptÃ© et modifiÃ© par S. KAY
 	unsigned char sauv1;
 	unsigned char sauv2;
 
@@ -115,7 +115,7 @@ void MyInterrupt_L(void){
 
 void main(void)
 {
-// Déclaration des variables
+// DÃ©claration des variables
 	unsigned char donnesSerie[12];
 	int vitesse;
 	long impulsions;

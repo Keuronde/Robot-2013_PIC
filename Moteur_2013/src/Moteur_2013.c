@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *      Programme utilisÈ pour le test du robot.
+ *      Programme utilis√© pour le test du robot.
  *
  *********************************************************************
  * FileName:        Poivron.c
@@ -16,7 +16,7 @@
  ********************************************************************/
 
 /** I N C L U D E S **********************************************************/
-// CompilÈ avec MCC18, le compilateur C de Microchip pour PIC 18F
+// Compil√© avec MCC18, le compilateur C de Microchip pour PIC 18F
 #include <p18f2550.h>
 #include <timers.h>
 #include <delays.h>
@@ -65,7 +65,7 @@ void _low_ISR (void)
 #pragma interrupt MyInterrupt_H
 void MyInterrupt_H(void){
 	// code de "Rustre Corner"
-	// AdaptÈ et modifiÈ par S. KAY
+	// Adapt√© et modifi√© par Keuronde
 	unsigned char sauv1;
 	unsigned char sauv2;
 
@@ -85,7 +85,7 @@ void MyInterrupt_H(void){
 			LED_1_OFF();
 			LED_2_ON();
 		}else{
-			// Sens nÈgatif
+			// Sens n√©gatif
 			INTCON2bits.INTEDG2 = 1; // interruption sur front montant
 			LED_1_ON();
 			LED_2_OFF();
@@ -134,7 +134,7 @@ void MyInterrupt_L(void){
 
 void main(void)
 {
-// DÈclaration des variables
+// D√©claration des variables
 	unsigned char donnesSerie[15];
 	int vitesse,cmp=0,consigne_vitesse;
 	int asser_p, asser_i;
@@ -153,16 +153,16 @@ void main(void)
 	// Odometrie
 	// Lecture du sens
 	TRISBbits.TRISB2 = 1; // Input
-	// Interruption sur changement d'Ètat
+	// Interruption sur changement d'√©tat
 	if (PORTBbits.RB2){
 		// sens positif
 		INTCON2bits.INTEDG2 = 0; // interruption sur front descendant
 	}else{
-		// Sens nÈgatif
+		// Sens n√©gatif
 		INTCON2bits.INTEDG2 = 1; // interruption sur front montant
 	}
-	INTCON3bits.INT2IP = 1; // PrioritÈ ÈlevÈe
-	INTCON3bits.INT2IE = 1; // Interruption activÈe
+	INTCON3bits.INT2IP = 1; // Priorit√© √©lev√©e
+	INTCON3bits.INT2IE = 1; // Interruption activ√©e
 	
 	
 	
@@ -176,7 +176,7 @@ void main(void)
 	while(1){
 		
 		if (getOdometrieFlag()){
-			// Si les valeur d'odomÈtrie ont ÈtÈ mise ‡ jour
+			// Si les valeur d'odom√©trie ont √©t√© mise √† jour
 			vitesse = OdometrieGetVitesse();
 			impulsions = OdometrieGetDeplacement();
 			
@@ -205,7 +205,7 @@ void main(void)
 			
 			V_fine(asser_p + asser_i);
 			
-			// Envoie des donnÈes au PC
+			// Envoie des donn√©es au PC
 			// sprintf((char*)donnesSerie,"%6ld %4d\r\n",impulsions,consigne_vitesse);
 			sprintf((char*)donnesSerie,"%3u %4d %4d\r\n",tension,vitesse,consigne_vitesse);
 			
@@ -242,12 +242,12 @@ void main(void)
  *****************************************************************************/
 
 void Moteur_2013_Init(){
-  // Configuration de la conversion analogique => numÈrique
+  // Configuration de la conversion analogique => num√©rique
 	ADCON1 = 0x0E;  // AN0 en analogique
 	                // Vref- = Vss
 	                // Vref+ = Vdd
-	ADCON2 = 0x80;  // RÈsultats alignÈ ‡ droite
-	ADCON0 = 0x01;  // Acitvation du module de conversion analogique => numÈrique
+	ADCON2 = 0x80;  // R√©sultats align√© √† droite
+	ADCON0 = 0x01;  // Acitvation du module de conversion analogique => num√©rique
 	
 	// LEDs en sortie
 	TRIS_LED_1 = 0;
@@ -258,7 +258,7 @@ void Moteur_2013_Init(){
 	INTCONbits.PEIE = 1;
 	
 	
-	// Initialisation de la liaison sÈrie
+	// Initialisation de la liaison s√©rie
 	SerieInit();
 	
 	// Initialisaiton du moteur
@@ -273,7 +273,7 @@ void Moteur_2013_Init(){
 /******************************************************************************
  * Function:        void LED_1_ON(void)
  *
- * PreCondition:    Robot initialisÈ
+ * PreCondition:    Robot initialis√©
  *
  * Side Effects:    None
  *

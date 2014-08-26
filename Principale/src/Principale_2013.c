@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *      Programme utilisé pour le test du robot.
+ *      Programme utilisÃ© pour le test du robot.
  *
  *********************************************************************
  * FileName:        Poivron.c
@@ -16,7 +16,7 @@
  ********************************************************************/
 
 /** I N C L U D E S **********************************************************/
-// Compilé avec MCC18, le compilateur C de Microchip pour PIC 18F
+// CompilÃ© avec MCC18, le compilateur C de Microchip pour PIC 18F
 #include <p18f2550.h>
 #include <timers.h>
 #include <delays.h>
@@ -68,7 +68,7 @@ void _low_ISR (void)
 #pragma interrupt MyInterrupt_H
 void MyInterrupt_H(void){
 	// code de "Rustre Corner"
-	// Adapté et modifié par S. KAY
+	// AdaptÃ© et modifiÃ© par Keuronde
 	unsigned char sauv1;
 	unsigned char sauv2;
 
@@ -76,12 +76,12 @@ void MyInterrupt_H(void){
 	sauv2 = PRODH;
 	
 	
-	// Compteur de temps : 1 incrément toutes les 3 ms
+	// Compteur de temps : 1 incrÃ©ment toutes les 3 ms
    	if(PIR1bits.TMR1IF == 1){
 		PIR1bits.TMR1IF = 0;
-//		WriteTimer0(65535 - 36000); //pour un préscaler de 1 : 12000 = 1ms
-									//pour un préscaler de 32 : 375 = 1 ms
-		WriteTimer1(65535 - 48000); //pour un préscaler de 1 : 12000 = 1ms
+//		WriteTimer0(65535 - 36000); //pour un prÃ©scaler de 1 : 12000 = 1ms
+									//pour un prÃ©scaler de 32 : 375 = 1 ms
+		WriteTimer1(65535 - 48000); //pour un prÃ©scaler de 1 : 12000 = 1ms
 		timer++;
 		
 		if(timer == 255){
@@ -132,7 +132,7 @@ void MyInterrupt_L(void){
 
 void main(void)
 {
-// Déclaration des variables
+// DÃ©claration des variables
 	long angle;
 	long impulsions;
 	// Asservissement en angle
@@ -154,11 +154,11 @@ void main(void)
 
 	while(1){
 		while(mTimer == getTimer());
-        // Calculer et récupérer l'angle du gyroscope
+        // Calculer et rÃ©cupÃ©rer l'angle du gyroscope
         mTimer =getTimer();
         
         WMP_calcul(mTimer); // On actualise l'angle
-        angle = WMP_get_Angle(); // Récupérer l'angle du gyrosocpe
+        angle = WMP_get_Angle(); // RÃ©cupÃ©rer l'angle du gyrosocpe
         
         if (angle > 0){
 			LED2 =1;
@@ -176,7 +176,7 @@ void main(void)
 		if(commande_angle_P < (int) -1023){
 			commande_angle_P = (int)-1023; // Saturation negative
 		}
-		// Gain intégral
+		// Gain intÃ©gral
 		if (tempo_P == 10){
 			tempo_P = 0;
 			if((commande_angle_P > (int) -1023) && (commande_angle_P < (int)1023 )){
@@ -215,12 +215,12 @@ void main(void)
  *****************************************************************************/
 
 void Moteur_2013_Init(){
-  // Configuration de la conversion analogique => numérique
+  // Configuration de la conversion analogique => numÃ©rique
 	ADCON1 = 0x0E;  // AN0 en analogique
 	                // Vref- = Vss
 	                // Vref+ = Vdd
-	ADCON2 = 0x80;  // Résultats aligné à droite
-	ADCON0 = 0x01;  // Acitvation du module de conversion analogique => numérique
+	ADCON2 = 0x80;  // RÃ©sultats alignÃ© Ã  droite
+	ADCON0 = 0x01;  // Acitvation du module de conversion analogique => numÃ©rique
 	
 	// Init LEDs
 	TRIS_LED1 = 0; // sortie
@@ -257,7 +257,7 @@ void Moteur_2013_Init(){
 	
 	
 	// Initialisation du WMP
-	Delay10KTCYx(80); // Temps que le WMP soit prêt
+	Delay10KTCYx(80); // Temps que le WMP soit prÃªt
 	if(WMP_init()){
 		LED2 = 1;
 		mTimer = getTimer();
@@ -265,7 +265,7 @@ void Moteur_2013_Init(){
 			while(mTimer == getTimer());
 			mTimer = getTimer();
 		}
-		// A décommenter pour avoir un WMP stable
+		// A dÃ©commenter pour avoir un WMP stable
 		WMP_init_2();
 	   
 		while(WMP_calibration()){           // Tant que la calibration est en cours
@@ -281,7 +281,7 @@ void Moteur_2013_Init(){
 	
 	
     
-    // A faire à la fin de l'init : 
+    // A faire Ã  la fin de l'init : 
     WMP_init_timer(getTimer());
 	mTimer = getTimer();
 	
@@ -294,7 +294,7 @@ void Moteur_2013_Init(){
 /******************************************************************************
  * Function:        void LED_1_ON(void)
  *
- * PreCondition:    Robot initialisé
+ * PreCondition:    Robot initialisÃ©
  *
  * Side Effects:    None
  *
